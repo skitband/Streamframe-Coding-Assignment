@@ -1,7 +1,7 @@
-const ActiveTask = () => {
+const ActiveTask = ({countPending}) => {
     return (
         <button type="button" className="btn btn-sm btn-secondary">
-            In Progress Task <span className="badge text-bg-secondary">4</span>
+            In Progress Task: <span className="badge text-bg-secondary">{countPending}</span>
         </button>
     );
 }

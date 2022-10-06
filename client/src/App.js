@@ -5,7 +5,6 @@ import 'bootstrap/dist/js/bootstrap.bundle';
 
 import ActiveTask from './components/ActiveTask';
 import CompletedTask from './components/CompletedTask';
-import DoneTask from './components/DoneTask';
 
 import TaskList from './components/TaskList';
 import AddTask from './components/AddTask';
@@ -15,26 +14,59 @@ function App() {
 
   const [tasks, setTasks] = useState([]);
   const [alert, setAlert] = useState(false);
-  const [taskId, setTaskId] = useState(null);
-  const [taskName, setTaskName] = useState(null);
+  const [taskId, setTaskId] = useState('');
+  const [taskName, setTaskName] = useState('');
+  const [newAction, setNewAction] = useState('');
+  const [countPending, setCountPending] = useState(0);
+  const [countComplete, setcountComplete] = useState(0);
 
   useEffect(() => {
       const fetchData = async () => {
         const response = await fetch('http://localhost:8080/api/task');
         const data = await response.json();
+        const countInprogress = Object.values(data).filter((t) => t.status === "in progress").length;
+        const countComplete = Object.values(data).filter((t) => t.status === "complete").length;
+        setCountPending(countInprogress);
+        setcountComplete(countComplete);
         setTasks(data);
       }
       fetchData()
   }, [tasks])
 
-  const onSubmitNewTask = async (task_name) => {
+  const onSubmitFormModal = async (id, name) => {
+
+    var url = '';
+    var bodyRequest = {};
+    var method = ''
+
+    switch(newAction) {
+      case 1: // create new parent task
+        url = "http://localhost:8080/api/task";
+        bodyRequest = { name: name, status: "in progress" };
+        method = "POST"
+        break;
+      case 2: // create new subtask from parent task id
+        url = "http://localhost:8080/api/subtask";
+        bodyRequest = { title: name, status: "in progress", taskId: taskId };
+        method = "POST"
+        break;
+      case 3: // edit parent task name
+        url = `http://localhost:8080/api/task/${id}`;
+        bodyRequest = { name: name };
+        method = "PUT"
+        break;
+      case 4: // edit subtask task name
+        url = `http://localhost:8080/api/subtask/${id}`;
+        bodyRequest = { title: name };
+        method = "PUT"
+        break;
+      default:
+        // code block
+    }
     
-    await fetch('http://localhost:8080/api/task', {
-      method: "POST",
-      body: JSON.stringify({
-        name: task_name,
-        status: "in progress"
-      }),
+    await fetch(url, {
+      method: method,
+      body: JSON.stringify(bodyRequest),
       headers: {
         "Content-type": "application/json; charset=UTF-8"
       }
@@ -47,31 +79,10 @@ function App() {
       .catch((error) => console.log(error));
   };
 
-  const onSubmitNewSubTask = async (task_title) => {
-    
-    await fetch('http://localhost:8080/api/subtask', {
-      method: "POST",
-      body: JSON.stringify({
-        title: task_title,
-        status: "in progress",
-        taskId: taskId
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8"
-      }
-    })
-      .then((response) => {
-        if (response.status == 200) {
-          setAlert(true);
-        }
-      })
-      .catch((error) => console.log(error));
-  };
-
-  const getTaskDetails = (id, task) => {
+  const getTaskDetails = (id, task, action) => {
     setTaskId(id)
     setTaskName(task)
-    console.log(id, task)
+    setNewAction(action)
   }
   
   return (
@@ -82,10 +93,9 @@ function App() {
             <p className="lead m-4 text-center">At Streamline, your role as ‘Software Engineer’ will mainly focus on developing our internal project management tool: Streamframe, as well as other internal tools and projects from time to time.</p>
               <main className="container">
                 <div className="col-10 d-flex gap-3 justify-content-end m-2">
-                  <AddTask onSubmitNewTask={onSubmitNewTask} onSubmitNewSubTask={onSubmitNewSubTask} taskId={taskId} taskName={taskName} getTaskDetails={getTaskDetails} />
-                  <ActiveTask />
-                  <CompletedTask />
-                  <DoneTask />
+                  <AddTask onSubmitFormModal={onSubmitFormModal} taskId={taskId} taskName={taskName} getTaskDetails={getTaskDetails} />
+                  <ActiveTask countPending={countPending}/>
+                  <CompletedTask countComplete={countComplete}/>
                 </div>
                 { alert ? <Alert/> : null}
                 {tasks.map((task, index) => {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 const AddTask = (props) => {
 
-    const {onSubmitNewTask, onSubmitNewSubTask, taskId, taskName, getTaskDetails} = props;
+    const {onSubmitFormModal, taskId, taskName, getTaskDetails} = props;
 
     const [newTaskName, setNewTaskName] = useState(taskName);
 
@@ -12,14 +12,11 @@ const AddTask = (props) => {
 
     const handleOnSubmit = (e) => {
         e.preventDefault();
-        let taskId = e.target.taskId.value
-        if(taskId.trim().length !== 0){
-            onSubmitNewSubTask(taskName);
-        }else{
-            onSubmitNewTask(taskName);
-        }
+        let taskId = e.target.taskId.value;
+        let tname = e.target.task_name.value;
+        onSubmitFormModal(taskId, tname, 1);
         setNewTaskName('');
-        taskId = null;
+        taskId = '';
         document.getElementById("closeModal").click()
     };
 
@@ -28,7 +25,7 @@ const AddTask = (props) => {
     }
 
     const handleResetTaskId = () => {
-        getTaskDetails(null, null)
+        getTaskDetails(null, null, 1)
         setNewTaskName('')
     }
 
@@ -42,13 +39,13 @@ const AddTask = (props) => {
                 <div className="modal-content">
                 <div className="modal-header">
                     <h5 className="modal-title">Add New Task</h5>
-                    <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModal" onClick={() => { handleResetTaskId() }}></button>
+                    <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModal"></button>
                 </div>
                 <form onSubmit={handleOnSubmit}>
                     <div className="modal-body">
                         <div className="mb-3">
                             <label className="col-form-label">Task Name:</label>
-                            <input type="hidden" id="taskId" className="form-control" name="taskId" value={taskId == null ? '' : taskId} />
+                            <input type="hidden" id="taskId" className="form-control" name="taskId" value={taskId == '' ? '' : taskId} />
                             <input type="text" className="form-control" name="task_name" required onChange={handleOnChangeTaskName} value={newTaskName} />
                         </div>
                     </div>
