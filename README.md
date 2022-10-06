@@ -2,13 +2,13 @@
 
 ## Install Backend Server
 
-In the project root directory, you can run:
+#### In the project root directory, you can run:
 
 ### `npm install`
 
 ## Create Database from your localhost mysql with db name: taskapp
 
-## Refer to db.config.js file in backend/config. Update on your database config
+### Refer to db.config.js file in backend/config, and Update on your database base on your db configuration (refer on the example down)
 
 
 **sample db.config.js file**
@@ -27,11 +27,11 @@ In the project root directory, you can run:
   }
 };`
 
-Run backend server
+#### Run backend server
 
 ### `nodemon server.js`
 
 Open [http://localhost:8080](http://localhost:8080) to view it in your browser.
 
-The page will reload when you make changes.\
+The page will reload when you make changes.
 
